@@ -33,8 +33,10 @@ JSONEditor.defaults.themes.bootstrap3 = JSONEditor.AbstractTheme.extend({
     }
     return el;
   },
-  getFormControl: function(label, input, description) {
+  getFormControl: function(label, input, description, tooltip) {
     var group = document.createElement('div');
+    var span;
+    var txt;
 
     if(label && input.type === 'checkbox') {
       group.className += ' checkbox';
@@ -42,14 +44,39 @@ JSONEditor.defaults.themes.bootstrap3 = JSONEditor.AbstractTheme.extend({
       label.style.fontSize = '14px';
       group.style.marginTop = '0';
       group.appendChild(label);
+      if(tooltip) {
+        span = document.createElement('span');
+        span.className += ' badge';
+        span.setAttribute('data-toggle', 'tooltip');
+        span.setAttribute('data-placement', 'left');
+        span.setAttribute('title', tooltip);
+        span.setAttribute('data-original-title', tooltip);
+        txt = document.createTextNode('?');
+        span.appendChild(txt);
+        group.appendChild(document.createTextNode(' '));
+        group.appendChild(span);
+      }
       input.style.position = 'relative';
       input.style.cssFloat = 'left';
-    } 
+    }
     else {
       group.className += ' form-group';
       if(label) {
         label.className += ' control-label';
         group.appendChild(label);
+      }
+
+      if(tooltip) {
+        span = document.createElement('span');
+        span.className += ' badge';
+        span.setAttribute('data-toggle', 'tooltip');
+        span.setAttribute('data-placement', 'left');
+        span.setAttribute('title', tooltip);
+        span.setAttribute('data-original-title', tooltip);
+        txt = document.createTextNode('?');
+        span.appendChild(txt);
+        group.appendChild(document.createTextNode(' '));
+        group.appendChild(span);
       }
       group.appendChild(input);
     }

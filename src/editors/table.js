@@ -44,7 +44,7 @@ JSONEditor.defaults.editors.table = JSONEditor.defaults.editors.array.extend({
     this.width = tmp.getNumColumns() + 2;
 
     if(!this.options.compact) {
-      this.title = this.theme.getHeader(this.getTitle());
+      this.title = this.theme.getHeader(this.getTitle(), this);
       this.container.appendChild(this.title);
       this.title_controls = this.theme.getHeaderButtonHolder();
       this.title.appendChild(this.title_controls);
@@ -340,6 +340,7 @@ JSONEditor.defaults.editors.table = JSONEditor.defaults.editors.array.extend({
         });
         self.setValue(newval);
         self.onChange(true);
+        $(self.table).trigger('tablechange');
       });
       controls_holder.appendChild(self.rows[i].delete_button);
     }
@@ -435,6 +436,7 @@ JSONEditor.defaults.editors.table = JSONEditor.defaults.editors.array.extend({
       self.refreshValue();
       self.refreshRowButtons();
       self.onChange(true);
+      $(self.table).trigger('tablechange');
     });
     self.controls.appendChild(this.add_row_button);
 
@@ -447,6 +449,7 @@ JSONEditor.defaults.editors.table = JSONEditor.defaults.editors.array.extend({
       rows.pop();
       self.setValue(rows);
       self.onChange(true);
+      $(self.table).trigger('tablechange');
     });
     self.controls.appendChild(this.delete_last_row_button);
 
@@ -457,6 +460,7 @@ JSONEditor.defaults.editors.table = JSONEditor.defaults.editors.array.extend({
 
       self.setValue([]);
       self.onChange(true);
+      $(self.table).trigger('tablechange');
     });
     self.controls.appendChild(this.remove_all_rows_button);
   }

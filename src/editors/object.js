@@ -304,10 +304,21 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
     else {
       this.header = document.createElement('span');
       this.header.textContent = this.getTitle();
-      this.title = this.theme.getHeader(this.header);
+      // PhE
+      this.title = this.theme.getHeader(this.header, this);
       this.container.appendChild(this.title);
       this.container.style.position = 'relative';
 
+      // PhE
+      if (this.schema.text) {
+        $(this.container).attr('data-text', this.schema.text);
+      }
+
+      // PhE
+      if (this.schema.notitle) {
+        $(this.container).attr('data-notitle', '');
+      }
+      
       // Edit JSON modal
       this.editjson_holder = this.theme.getModal();
       this.editjson_textarea = this.theme.getTextareaInput();
@@ -712,7 +723,7 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
       if(!this.editors.hasOwnProperty(i)) continue;
       this.value[i] = this.editors[i].getValue();
     }
-    
+
     if(this.adding_property) this.refreshAddProperties();
   },
   refreshAddProperties: function() {

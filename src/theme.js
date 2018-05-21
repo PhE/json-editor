@@ -73,8 +73,9 @@ JSONEditor.AbstractTheme = Class.extend({
     el.style.fontWeight = 'normal';
     return el;
   },
-  getHeader: function(text) {
-    var el = document.createElement('h3');
+  getHeader: function(text, element) {
+    // PhE
+    var el = document.createElement('h6');
     if(typeof text === "string") {
       el.textContent = text;
     }
@@ -166,9 +167,15 @@ JSONEditor.AbstractTheme = Class.extend({
   afterInputReady: function(input) {
 
   },
-  getFormControl: function(label, input, description) {
+  getFormControl: function(label, input, description, tooltip) {
     var el = document.createElement('div');
     el.className = 'form-control';
+
+    if(tooltip) {
+      var btn = '<button type="button" class="btn btn-default" data-toggle="tooltip" data-placement="left" title="Tooltip on left">?</button>';
+      el.appendChild(btn);
+    }
+
     if(label) el.appendChild(label);
     if(input.type === 'checkbox') {
       label.insertBefore(input,label.firstChild);
