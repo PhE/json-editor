@@ -29,8 +29,10 @@ module.exports = function(grunt) {
           'src/editor.js',
           'src/editors/null.js',
           'src/editors/string.js',
+          'src/editors/hidden.js',
           'src/editors/number.js',
           'src/editors/integer.js',
+          'src/editors/rating.js',
           'src/editors/object.js',
           'src/editors/array.js',
           'src/editors/table.js',
@@ -84,6 +86,7 @@ module.exports = function(grunt) {
       options: {
         browser: true,
         indent: 2,
+        devel:true,
         nonbsp: true,
         nonew: true,
         immed: true,
@@ -129,6 +132,36 @@ module.exports = function(grunt) {
           src: ['dist/jsoneditor.js']
         }
       }
+    },
+    connect: {
+        default: {
+            options: {
+                port: 9000,
+                hostname: '0.0.0.0',
+                debug: true,
+                keepalive: true
+            }
+        },
+        testing: {
+            options: {
+                port: 9001,
+                hostname: '0.0.0.0',
+                debug: true,
+                keepalive: true
+            }
+        }
+    },
+    run: {
+        options: {
+            // Task-specific options
+        },
+        mocha: {
+            cmd: 'mocha',
+            args: [
+                'tests/selenium/*.js',
+                '--reporter=nyan'
+            ]
+        }
     }
   });
 
@@ -137,8 +170,19 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-connect');
+  grunt.loadNpmTasks('grunt-run');
 
-  // Default task.
+  // Serve files
+  grunt.registerTask('serve', 'connect:default');
+  grunt.registerTask('serve-test', 'connect:testing');
+
+  // Run mocha tests
+  grunt.registerTask('test', ['run:mocha']);
+
+    // Default task.
   grunt.registerTask('default', ['jshint:beforeconcat','concat','jshint:afterconcat','uglify']);
-
+  
+  grunt.registerTask('rawbuild', ['concat','uglify']);
+  
 };

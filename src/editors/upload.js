@@ -108,12 +108,20 @@ JSONEditor.defaults.editors.upload = JSONEditor.AbstractEditor.extend({
         }
       });
     });
+
+    if(this.jsoneditor.options.auto_upload || this.schema.options.auto_upload) {
+      uploadButton.dispatchEvent(new MouseEvent('click'));
+      this.preview.removeChild(uploadButton);
+    }
   },
   enable: function() {
-    if(this.uploader) this.uploader.disabled = false;
-    this._super();
+    if(!this.always_disabled) {
+      if(this.uploader) this.uploader.disabled = false;
+      this._super();
+    }
   },
-  disable: function() {
+  disable: function(always_disabled) {
+    if(always_disabled) this.always_disabled = true;
     if(this.uploader) this.uploader.disabled = true;
     this._super();
   },

@@ -40,7 +40,7 @@ JSONEditor.AbstractEditor = Class.extend({
     this.original_schema = options.schema;
     this.schema = this.jsoneditor.expandSchema(this.original_schema);
 
-    this.options = $extend({}, (this.options || {}), (options.schema.options || {}), options);
+    this.options = $extend({}, (this.options || {}), (this.schema.options || {}), (options.schema.options || {}), options);
 
     if(!options.path && !this.schema.id) this.schema.id = 'root';
     this.path = options.path || 'root';
@@ -52,6 +52,81 @@ JSONEditor.AbstractEditor = Class.extend({
     this.link_watchers = [];
 
     if(options.container) this.setContainer(options.container);
+    this.registerDependencies();
+  },
+  registerDependencies: function() {
+    this.dependenciesFulfilled = true;
+    var deps = this.options.dependencies;
+    if (!deps) {
+      return;
+    }
+
+    var self = this;
+    Object.keys(deps).forEach(function(dependency) {
+      var path = self.path.split('.');
+      path[path.length - 1] = dependency;
+      path = path.join('.');
+      var choices = deps[dependency];
+      self.jsoneditor.watch(path, function() {
+        self.checkDependency(path, choices);
+      });
+    });
+  },
+  checkDependency: function(path, choices) {
+    var wrapper = this.control || this.container;
+    if (this.path === path || !wrapper) {
+      return;
+    }
+
+    var self = this;
+    var editor = this.jsoneditor.getEditor(path);
+    var value = editor ? editor.getValue() : undefined;
+    var previousStatus = this.dependenciesFulfilled;
+    this.dependenciesFulfilled = false;
+
+    if (!editor || !editor.dependenciesFulfilled) {
+      this.dependenciesFulfilled = false;
+    } else if (Array.isArray(choices)) {
+      choices.some(function(choice) {
+        if (value === choice) {
+          self.dependenciesFulfilled = true;
+          return true;
+        }
+      });
+    } else if (typeof choices === 'object') {
+      if (typeof value !== 'object') {
+        this.dependenciesFulfilled = choices === value;
+      } else {
+        Object.keys(choices).some(function(key) {
+          if (!choices.hasOwnProperty(key)) {
+            return false;
+          }
+          if (!value.hasOwnProperty(key) || choices[key] !== value[key]) {
+            self.dependenciesFulfilled = false;
+            return true;
+          }
+          self.dependenciesFulfilled = true;
+        });
+      }
+    } else if (typeof choices === 'string' || typeof choices === 'number') {
+      this.dependenciesFulfilled = value === choices;
+    } else if (typeof choices === 'boolean') {
+      if (choices) {
+        this.dependenciesFulfilled = value && value.length > 0;
+      } else {
+        this.dependenciesFulfilled = !value || value.length === 0;
+      }
+    }
+
+    if (this.dependenciesFulfilled !== previousStatus) {
+      this.notify();
+    }
+
+    if (this.dependenciesFulfilled) {
+      wrapper.style.display = 'block';
+    } else {
+      wrapper.style.display = 'none';
+    }
   },
   setContainer: function(container) {
     this.container = container;
@@ -90,7 +165,6 @@ JSONEditor.AbstractEditor = Class.extend({
       }
     };
 
-    this.register();
     if(this.schema.hasOwnProperty('watch')) {
       var path,path_parts,first,root,adjusted_path;
 
@@ -180,6 +254,7 @@ JSONEditor.AbstractEditor = Class.extend({
 
     // Template to generate the link href
     var href = this.jsoneditor.compileTemplate(data.href,this.template_engine);
+    var relTemplate = this.jsoneditor.compileTemplate(data.rel ? data.rel : data.href,this.template_engine);
 
     // Template to generate the link's download attribute
     var download = null;
@@ -201,8 +276,9 @@ JSONEditor.AbstractEditor = Class.extend({
       // When a watched field changes, update the url
       this.link_watchers.push(function(vars) {
         var url = href(vars);
+        var rel = relTemplate(vars);
         link.setAttribute('href',url);
-        link.setAttribute('title',data.rel || url);
+        link.setAttribute('title',rel || url);
         image.setAttribute('src',url);
       });
     }
@@ -221,8 +297,9 @@ JSONEditor.AbstractEditor = Class.extend({
       // When a watched field changes, update the url
       this.link_watchers.push(function(vars) {
         var url = href(vars);
+        var rel = relTemplate(vars);
         link.setAttribute('href',url);
-        link.textContent = data.rel || url;
+        link.textContent = rel || url;
         media.setAttribute('src',url);
       });
     }
@@ -235,8 +312,9 @@ JSONEditor.AbstractEditor = Class.extend({
       // When a watched field changes, update the url
       this.link_watchers.push(function(vars) {
         var url = href(vars);
+        var rel = relTemplate(vars);
         holder.setAttribute('href',url);
-        holder.textContent = data.rel || url;
+        holder.textContent = rel || url;
       });
     }
 
@@ -334,6 +412,9 @@ JSONEditor.AbstractEditor = Class.extend({
     this.value = value;
   },
   getValue: function() {
+    if (!this.dependenciesFulfilled) {
+      return undefined;
+    }
     return this.value;
   },
   refreshValue: function() {
@@ -363,8 +444,13 @@ JSONEditor.AbstractEditor = Class.extend({
     this.parent = null;
   },
   getDefault: function() {
-    if(this.schema["default"]) return this.schema["default"];
-    if(this.schema["enum"]) return this.schema["enum"][0];
+    if (typeof this.schema["default"] !== 'undefined') {
+      return this.schema["default"];
+    }
+
+    if (typeof this.schema["enum"] !== 'undefined') {
+      return this.schema["enum"][0];
+    }
 
     var type = this.schema.type || this.schema.oneOf;
     if(type && Array.isArray(type)) type = type[0];

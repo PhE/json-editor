@@ -23,11 +23,12 @@ JSONEditor.defaults.editors.checkbox = JSONEditor.AbstractEditor.extend({
       this.label = this.header = this.theme.getCheckboxLabel(this.getTitle());
     }
     if(this.schema.description) this.description = this.theme.getFormInputDescription(this.schema.description);
+    if(this.options.infoText) this.infoButton = this.theme.getInfoButton(this.options.infoText);
     if(this.options.compact) this.container.className += ' compact';
     if(this.schema.tooltip) this.tooltip = this.schema.tooltip;
 
     this.input = this.theme.getCheckbox();
-    this.control = this.theme.getFormControl(this.label, this.input, this.description, this.tooltip);
+    this.control = this.theme.getFormControl(this.label, this.input, this.description, this.infoButton);
 
     if(this.schema.readOnly || this.schema.readonly) {
       this.always_disabled = true;
@@ -46,10 +47,11 @@ JSONEditor.defaults.editors.checkbox = JSONEditor.AbstractEditor.extend({
   enable: function() {
     if(!this.always_disabled) {
       this.input.disabled = false;
+      this._super();
     }
-    this._super();
   },
-  disable: function() {
+  disable: function(always_disabled) {
+    if(always_disabled) this.always_disabled = true;
     this.input.disabled = true;
     this._super();
   },
@@ -58,5 +60,32 @@ JSONEditor.defaults.editors.checkbox = JSONEditor.AbstractEditor.extend({
     if(this.description && this.description.parentNode) this.description.parentNode.removeChild(this.description);
     if(this.input && this.input.parentNode) this.input.parentNode.removeChild(this.input);
     this._super();
+  },
+  showValidationErrors: function (errors) {
+    var self = this;
+
+    if (this.jsoneditor.options.show_errors === "always") {}
+
+    else if (!this.is_dirty && this.previous_error_setting === this.jsoneditor.options.show_errors) {
+      return;
+    }
+
+    this.previous_error_setting = this.jsoneditor.options.show_errors;
+
+    var messages = [];
+    $each(errors, function (i, error) {
+      if (error.path === self.path) {
+        messages.push(error.message);
+      }
+    });
+
+    this.input.controlgroup = this.control;
+
+    if (messages.length) {
+      this.theme.addInputError(this.input, messages.join('. ') + '.');
+    }
+    else {
+      this.theme.removeInputError(this.input);
+    }
   }
 });

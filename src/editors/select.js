@@ -13,9 +13,15 @@ JSONEditor.defaults.editors.select = JSONEditor.AbstractEditor.extend({
     }
 
     this.input.value = this.enum_options[this.enum_values.indexOf(sanitized)];
-    if(this.select2) this.select2.select2('val',this.input.value);
+    if(this.select2) {
+      if(this.select2v4)
+        this.select2.val(this.input.value).trigger("change"); 
+      else
+        this.select2.select2('val',this.input.value);
+    }
     this.value = sanitized;
     this.onChange();
+    this.change();
   },
   register: function() {
     this._super();
@@ -50,7 +56,10 @@ JSONEditor.defaults.editors.select = JSONEditor.AbstractEditor.extend({
     }
   },
   getValue: function() {
-    return this.value;
+    if (!this.dependenciesFulfilled) {
+      return undefined;
+    }
+    return this.typecast(this.value);
   },
   preBuild: function() {
     var self = this;
@@ -156,8 +165,12 @@ JSONEditor.defaults.editors.select = JSONEditor.AbstractEditor.extend({
     var self = this;
     if(!this.options.compact) this.header = this.label = this.theme.getFormInputLabel(this.getTitle());
     if(this.schema.description) this.description = this.theme.getFormInputDescription(this.schema.description);
+<<<<<<< HEAD
     if(this.schema.tooltip) this.tooltip = this.schema.tooltip;
 
+=======
+    if(this.options.infoText) this.infoButton = this.theme.getInfoButton(this.options.infoText);
+>>>>>>> upstream/master
     if(this.options.compact) this.container.className += ' compact';
 
     this.input = this.theme.getSelectInput(this.enum_options);
@@ -174,7 +187,11 @@ JSONEditor.defaults.editors.select = JSONEditor.AbstractEditor.extend({
       self.onInputChange();
     });
 
+<<<<<<< HEAD
     this.control = this.theme.getFormControl(this.label, this.input, this.description, this.tooltip);
+=======
+    this.control = this.theme.getFormControl(this.label, this.input, this.description, this.infoButton);
+>>>>>>> upstream/master
     this.container.appendChild(this.control);
 
     // PhE
@@ -185,7 +202,7 @@ JSONEditor.defaults.editors.select = JSONEditor.AbstractEditor.extend({
     this.value = this.enum_values[0];
   },
   onInputChange: function() {
-    var val = this.input.value;
+    var val = this.typecast(this.input.value);
 
     var new_val;
     // Invalid option, use first option instead
@@ -209,13 +226,24 @@ JSONEditor.defaults.editors.select = JSONEditor.AbstractEditor.extend({
       var options = $extend({},JSONEditor.plugins.select2);
       if(this.schema.options && this.schema.options.select2_options) options = $extend(options,this.schema.options.select2_options);
       this.select2 = window.jQuery(this.input).select2(options);
+      this.select2v4 = this.select2.select2.hasOwnProperty("amd");
+
       var self = this;
       this.select2.on('select2-blur',function() {
-        self.input.value = self.select2.select2('val');
+        if(self.select2v4)
+          self.input.value = self.select2.val();
+        else
+          self.input.value = self.select2.select2('val');
+
         self.onInputChange();
       });
+
       this.select2.on('change',function() {
-        self.input.value = self.select2.select2('val');
+        if(self.select2v4)
+          self.input.value = self.select2.val();
+        else
+          self.input.value = self.select2.select2('val');
+
         self.onInputChange();
       });
     }
@@ -324,7 +352,11 @@ JSONEditor.defaults.editors.select = JSONEditor.AbstractEditor.extend({
       // Otherwise, set the value to the first select option
       else {
         this.input.value = select_options[0];
+<<<<<<< HEAD
         this.value = select_options[0] || "";
+=======
+        this.value = this.typecast(select_options[0] || "");  
+>>>>>>> upstream/master
         if(this.parent) this.parent.onChildEditorChange(this);
         else this.jsoneditor.onChange();
         this.jsoneditor.notifyWatchers(this.path);
@@ -338,13 +370,24 @@ JSONEditor.defaults.editors.select = JSONEditor.AbstractEditor.extend({
   enable: function() {
     if(!this.always_disabled) {
       this.input.disabled = false;
-      if(this.select2) this.select2.select2("enable",true);
+      if(this.select2) {
+        if(this.select2v4)
+          this.select2.prop("disabled",false);
+        else
+          this.select2.select2("enable",true);
+      }
     }
     this._super();
   },
-  disable: function() {
+  disable: function(always_disabled) {
+    if(always_disabled) this.always_disabled = true;
     this.input.disabled = true;
-    if(this.select2) this.select2.select2("enable",false);
+    if(this.select2) {
+      if(this.select2v4)
+        this.select2.prop("disabled",true);
+      else
+        this.select2.select2("enable",false);
+    }
     this._super();
   },
   destroy: function() {

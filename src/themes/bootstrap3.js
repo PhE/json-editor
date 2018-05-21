@@ -14,6 +14,11 @@ JSONEditor.defaults.themes.bootstrap3 = JSONEditor.AbstractTheme.extend({
     if(this.closest(input,'.compact')) {
       input.controlgroup.style.marginBottom = 0;
     }
+    if (this.queuedInputErrorText) {
+        var text = this.queuedInputErrorText;
+        delete this.queuedInputErrorText;
+        this.addInputError(input,text);
+    }
 
     // TODO: use bootstrap slider
   },
@@ -33,7 +38,11 @@ JSONEditor.defaults.themes.bootstrap3 = JSONEditor.AbstractTheme.extend({
     }
     return el;
   },
+<<<<<<< HEAD
   getFormControl: function(label, input, description, tooltip) {
+=======
+  getFormControl: function(label, input, description, infoText) {
+>>>>>>> upstream/master
     var group = document.createElement('div');
     var span;
     var txt;
@@ -43,6 +52,7 @@ JSONEditor.defaults.themes.bootstrap3 = JSONEditor.AbstractTheme.extend({
       label.appendChild(input);
       label.style.fontSize = '14px';
       group.style.marginTop = '0';
+      if(infoText) group.appendChild(infoText);
       group.appendChild(label);
       if(tooltip) {
         span = document.createElement('span');
@@ -66,6 +76,7 @@ JSONEditor.defaults.themes.bootstrap3 = JSONEditor.AbstractTheme.extend({
         group.appendChild(label);
       }
 
+<<<<<<< HEAD
       if(tooltip) {
         span = document.createElement('span');
         span.className += ' badge';
@@ -78,6 +89,9 @@ JSONEditor.defaults.themes.bootstrap3 = JSONEditor.AbstractTheme.extend({
         group.appendChild(document.createTextNode(' '));
         group.appendChild(span);
       }
+=======
+      if(infoText) group.appendChild(infoText);
+>>>>>>> upstream/master
       group.appendChild(input);
     }
 
@@ -90,6 +104,36 @@ JSONEditor.defaults.themes.bootstrap3 = JSONEditor.AbstractTheme.extend({
     el.className = 'well well-sm';
     el.style.paddingBottom = 0;
     return el;
+  },
+  getInfoButton: function(text) {
+    var icon = document.createElement('span');
+    icon.className = "glyphicon glyphicon-info-sign pull-right";
+    icon.style.padding = ".25rem";
+    icon.style.position = "relative";
+    icon.style.display = "inline-block";
+
+    var tooltip = document.createElement('span');
+    tooltip.style["font-family"] = "sans-serif";
+    tooltip.style.visibility = "hidden";
+    tooltip.style["background-color"] = "rgba(50, 50, 50, .75)";
+    tooltip.style.margin = "0 .25rem";
+    tooltip.style.color = "#FAFAFA";
+    tooltip.style.padding = ".5rem 1rem";
+    tooltip.style["border-radius"] = ".25rem";
+    tooltip.style.width = "25rem";
+    tooltip.style.transform = "translateX(-27rem) translateY(-.5rem)";
+    tooltip.style.position = "absolute";
+    tooltip.innerText = text;
+    icon.onmouseover = function() {
+      tooltip.style.visibility = "visible";
+    };
+    icon.onmouseleave = function() {
+      tooltip.style.visibility = "hidden";
+    };
+
+    icon.appendChild(tooltip);
+
+    return icon;
   },
   getFormInputDescription: function(text) {
     var el = document.createElement('p');
@@ -121,7 +165,11 @@ JSONEditor.defaults.themes.bootstrap3 = JSONEditor.AbstractTheme.extend({
   },
 
   addInputError: function(input,text) {
-    if(!input.controlgroup) return;
+    if(!input.controlgroup) {
+        this.queuedInputErrorText = text;
+        return; 
+    }
+    input.controlgroup.className = input.controlgroup.className.replace(/\s?has-error/g,'');
     input.controlgroup.className += ' has-error';
     if(!input.errmsg) {
       input.errmsg = document.createElement('p');
@@ -135,6 +183,9 @@ JSONEditor.defaults.themes.bootstrap3 = JSONEditor.AbstractTheme.extend({
     input.errmsg.textContent = text;
   },
   removeInputError: function(input) {
+    if(!input.controlgroup) {
+        delete this.queuedInputErrorText;
+    }
     if(!input.errmsg) return;
     input.errmsg.style.display = 'none';
     input.controlgroup.className = input.controlgroup.className.replace(/\s?has-error/g,'');

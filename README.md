@@ -11,17 +11,20 @@ For details please visit https://github.com/json-editor/json-editor/issues/5
 JSON Editor
 ===========
 
-![JSON Schema -> HTML Editor -> JSON](https://raw.github.com/jdorn/json-editor/master/jsoneditor.png)
+[![Build Status](https://travis-ci.org/json-editor/json-editor.svg?branch=v1.0.0)](https://travis-ci.org/json-editor/json-editor)
+Fork of the inactive [jdorn/json-editor](https://github.com/jdorn/json-editor) using the updated fork [json-editor/json-editor](https://github.com/json-editor/json-editor). Some pull requests added from the original repo.
+
+![JSON Schema -> HTML Editor -> JSON](https://raw.github.com/json-editor/json-editor/master/jsoneditor.png)
 
 JSON Editor takes a JSON Schema and uses it to generate an HTML form.  
 It has full support for JSON Schema version 3 and 4 and can integrate with several popular CSS frameworks (bootstrap, foundation, and jQueryUI).
 
-Check out an interactive demo (demo.html): http://jeremydorn.com/json-editor/
+Check out an interactive demo (demo.html): https://json-editor.github.io/json-editor/
 
-Download the [production version][min] (22K when gzipped) or the [development version][max].
+Install
+-----------------
 
-[min]: https://raw.github.com/jdorn/json-editor/master/dist/jsoneditor.min.js
-[max]: https://raw.github.com/jdorn/json-editor/master/dist/jsoneditor.js
+    npm install @json-editor/json-editor
 
 Requirements
 -----------------
@@ -36,10 +39,10 @@ The following are not required, but can improve the style and usability of JSON 
 *  A compatible CSS framework for styling (bootstrap 2/3, foundation 3/4/5, or jqueryui)
 *  A compatible icon library (bootstrap 2/3 glyphicons, foundation icons 2/3, jqueryui, or font awesome 3/4)
 *  [SCEditor](http://www.sceditor.com/) for WYSIWYG editing of HTML or BBCode content
-*  [EpicEditor](http://epiceditor.com/) for editing of Markdown content
+*  [SimpleMDE](https://simplemde.com/) for editing of Markdown content
 *  [Ace Editor](http://ace.c9.io/) for editing code
 *  [Select2](http://ivaynberg.github.io/select2/) for nicer Select boxes
-*  [Selectize](http://brianreavis.github.io/selectize.js/) for nicer Select & Array boxes
+*  [Selectize](https://selectize.github.io/selectize.js/) for nicer Select & Array boxes
 *  [math.js](http://mathjs.org/) for more accurate floating point math (multipleOf, divisibleBy, etc.)
 
 Usage
@@ -317,6 +320,7 @@ The currently supported themes are:
 *  html (the default)
 *  bootstrap2
 *  bootstrap3
+*  bootstrap4
 *  foundation3
 *  foundation4
 *  foundation5
