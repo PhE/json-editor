@@ -35,8 +35,8 @@ JSONEditor.defaults.editors.string = JSONEditor.AbstractEditor.extend({
     if(this.sceditor_instance) {
       this.sceditor_instance.val(sanitized);
     }
-    else if(this.SimpleMDE) {
-      this.SimpleMDE.value(sanitized);
+    else if(this.epiceditor) {
+      this.epiceditor.importFile(null,sanitized);
     }
     else if(this.ace_editor) {
       this.ace_editor.setValue(sanitized);
@@ -68,11 +68,6 @@ JSONEditor.defaults.editors.string = JSONEditor.AbstractEditor.extend({
     var self = this, i;
     if(!this.options.compact) this.header = this.label = this.theme.getFormInputLabel(this.getTitle());
     if(this.schema.description) this.description = this.theme.getFormInputDescription(this.schema.description);
-<<<<<<< HEAD
-    if(this.schema.tooltip) this.tooltip = this.schema.tooltip;
-=======
-    if(this.options.infoText) this.infoButton = this.theme.getInfoButton(this.options.infoText);
->>>>>>> upstream/master
 
     this.format = this.schema.format;
     if(!this.format && this.schema.media && this.schema.media.type) {
@@ -257,26 +252,7 @@ JSONEditor.defaults.editors.string = JSONEditor.AbstractEditor.extend({
 
     if(this.format) this.input.setAttribute('data-schemaformat',this.format);
 
-<<<<<<< HEAD
-    // PhE
-    if(this.schema.calc) {
-      this.input.setAttribute('data-calc', this.schema.calc);
-    }
-
-    // PhE
-    if(this.schema.operation) {
-      this.input.setAttribute('data-operation', this.schema.operation);
-    }
-
-    // PhE
-    if(this.schema.recopy) {
-      this.input.setAttribute('data-recopy', this.schema.recopy);
-    }
-
-    this.control = this.theme.getFormControl(this.label, this.input, this.description, this.tooltip);
-=======
-    this.control = this.theme.getFormControl(this.label, this.input, this.description, this.infoButton);
->>>>>>> upstream/master
+    this.control = this.theme.getFormControl(this.label, this.input, this.description);
     this.container.appendChild(this.control);
 
     // Any special formatting that needs to happen after the input is added to the dom
@@ -301,11 +277,10 @@ JSONEditor.defaults.editors.string = JSONEditor.AbstractEditor.extend({
     if(!this.always_disabled) {
       this.input.disabled = false;
       // TODO: WYSIWYG and Markdown editors
-      this._super();
     }
+    this._super();
   },
-  disable: function(always_disabled) {
-    if(always_disabled) this.always_disabled = true;
+  disable: function() {
     this.input.disabled = true;
     // TODO: WYSIWYG and Markdown editors
     this._super();
@@ -343,7 +318,6 @@ JSONEditor.defaults.editors.string = JSONEditor.AbstractEditor.extend({
           self.onChange(true);
         });
       }
-<<<<<<< HEAD
       // EpicEditor for markdown (if it's loaded)
       else if (this.input_type === 'markdown' && window.EpicEditor) {
         this.epiceditor_container = document.createElement('div');
@@ -363,18 +337,6 @@ JSONEditor.defaults.editors.string = JSONEditor.AbstractEditor.extend({
           var val = self.epiceditor.exportFile();
           self.input.value = val;
           self.value = val;
-=======
-      // SimpleMDE for markdown (if it's loaded)
-      else if (this.input_type === 'markdown' && window.SimpleMDE) {
-        options = $extend({},JSONEditor.plugins.SimpleMDE,{
-          element: this.input
-        });
-
-        this.SimpleMDE = new window.SimpleMDE((options));
-
-        this.SimpleMDE.codemirror.on("change",function() {
-          self.value = self.SimpleMDE.value();
->>>>>>> upstream/master
           self.is_dirty = true;
           self.onChange(true);
         });
@@ -426,8 +388,8 @@ JSONEditor.defaults.editors.string = JSONEditor.AbstractEditor.extend({
     if(this.sceditor_instance) {
       this.sceditor_instance.destroy();
     }
-    else if(this.SimpleMDE) {
-      this.SimpleMDE.destroy();
+    else if(this.epiceditor) {
+      this.epiceditor.unload();
     }
     else if(this.ace_editor) {
       this.ace_editor.destroy();

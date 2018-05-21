@@ -1,6 +1,3 @@
-/*jslint devel: true */ /*global define */
-/*globals $:false */
-
 var JSONEditor = function(element,options) {
   if (!(element instanceof Element)) {
     throw new Error('element should be an instance of Element');
@@ -18,9 +15,8 @@ JSONEditor.prototype = {
     var self = this;
 
     this.ready = false;
-    this.copyClipboard = null;
 
-    var theme_class = JSONEditor.defaults.themes[this.options.theme || JSONEditor.defaults.theme];
+    var theme_clss = JSONEditor.defaults.themes[this.options.theme || JSONEditor.defaults.theme];
     if(!theme_class) throw "Unknown theme " + (this.options.theme || JSONEditor.defaults.theme);
 
     this.schema = this.options.schema;
@@ -50,11 +46,10 @@ JSONEditor.prototype = {
       self.validator = new JSONEditor.Validator(self,null,validator_options);
 
       // Create the root editor
-      var schema = self.expandRefs(self.schema);
-      var editor_class = self.getEditorClass(schema);
+      var editor_class = self.getEditorClass(self.schema);
       self.root = self.createEditor(editor_class, {
         jsoneditor: self,
-        schema: schema,
+        schema: self.schema,
         required: true,
         container: self.root_container
       });
@@ -64,7 +59,7 @@ JSONEditor.prototype = {
       self.root.postBuild();
 
       // Starting data
-      if(self.options.hasOwnProperty('startval')) self.root.setValue(self.options.startval);
+      if(self.options.startval) self.root.setValue(self.options.startval);
 
       self.validation_results = self.validator.validate(self.root.getValue());
       self.root.showValidationErrors(self.validation_results);
@@ -353,7 +348,7 @@ JSONEditor.prototype = {
       if(!schema.hasOwnProperty(i)) continue;
       if(schema[i] && typeof schema[i] === "object" && Array.isArray(schema[i])) {
         for(var j=0; j<schema[i].length; j++) {
-          if(schema[i][j] && typeof schema[i][j]==="object") {
+          if(typeof schema[i][j]==="object") {
             merge_refs(this._getExternalRefs(schema[i][j]));
           }
         }
@@ -377,17 +372,8 @@ JSONEditor.prototype = {
       self.refs[url] = 'loading';
       waiting++;
 
-<<<<<<< HEAD
       var r = new XMLHttpRequest();
       r.open("GET", url, true);
-=======
-      var fetchUrl=url;
-      if( self.options.ajaxBase && self.options.ajaxBase!=url.substr(0,self.options.ajaxBase.length) && "http"!=url.substr(0,4)) fetchUrl=self.options.ajaxBase+url;
-
-      var r = new XMLHttpRequest(); 
-      r.open("GET", fetchUrl, true);
-      if(self.options.ajaxCredentials) r.withCredentials=self.options.ajaxCredentials;
->>>>>>> upstream/master
       r.onreadystatechange = function () {
         if (r.readyState != 4) return;
         // Request succeeded
@@ -398,34 +384,18 @@ JSONEditor.prototype = {
           }
           catch(e) {
             window.console.log(e);
-            throw "Failed to parse external ref "+fetchUrl;
+            throw "Failed to parse external ref "+url;
           }
-<<<<<<< HEAD
           if(!response || typeof response !== "object") throw "External ref does not contain a valid schema - "+url;
 
-=======
-          if(!response || typeof response !== "object") throw "External ref does not contain a valid schema - "+fetchUrl;
-          
->>>>>>> upstream/master
           self.refs[url] = response;
-          // Get the js URL from the $ref url
-          var url_js = url.replace(/.json/g, '.js');
-          $.getScript(url_js)
-            .done(function( script, textStatus ) {
-              console.log(url_js + ' loaded.');
-            })
-            .fail(function( jqxhr, settings, exception ) {
-              console.log(url_js + " not found !");
-            })
-            .always(function() {
-              self._loadExternalRefs(response,function() {
-                done++;
-                if(done >= waiting && !callback_fired) {
-                  callback_fired = true;
-                  callback();
-                }
-              });
-            });
+          self._loadExternalRefs(response,function() {
+            done++;
+            if(done >= waiting && !callback_fired) {
+              callback_fired = true;
+              callback();
+            }
+          });
         }
         // Request failed
         else {
@@ -612,12 +582,6 @@ JSONEditor.prototype = {
     });
 
     return extended;
-  },
-  setCopyClipboardContents: function(value) {
-    this.copyClipboard = value;
-  },
-  getCopyClipboardContents: function() {
-    return this.copyClipboard;
   }
 };
 
