@@ -8,6 +8,7 @@ For details please visit https://github.com/json-editor/json-editor/issues/5
 
 ---
 
+
 JSON Editor
 ===========
 
