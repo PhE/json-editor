@@ -1,3 +1,5 @@
+See how to merge upstream.
+
 # Deprecation notice
 
 This repo is no longer maintained (see also https://github.com/jdorn/json-editor/issues/800)
