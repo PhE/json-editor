@@ -1,3 +1,5 @@
+
+
 # Deprecation notice
 
 This repo beed to be rebase with **https://github.com/json-editor/json-editor**
